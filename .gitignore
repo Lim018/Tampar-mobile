@@ -1,0 +1,71 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.idea/
+.vscode/
+
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-versions
+.fvm/
+coverage/
+
+# Environment & config
+.env
+.env.*
+*.keystore
+key.properties
+
+# Android
+android/.gradle/
+android/local.properties
+android/key.properties
+android/**/GeneratedPluginRegistrant.java
+android/**/generated/
+android/app/debug/
+android/app/profile/
+android/app/release/
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Runner/GeneratedPluginRegistrant.*
+ios/Runner.xcworkspace/
+ios/Runner.xcodeproj/xcuserdata/
+ios/Runner.xcodeproj/project.xcworkspace/
+ios/Runner.xcodeproj/project.pbxproj
+
+# Web
+build/web/
+
+# Windows
+windows/flutter/ephemeral/
+windows/.plugin_symlinks/
+
+# macOS
+macos/Flutter/ephemeral/
+macos/.plugin_symlinks/
+
+# Linux
+linux/flutter/ephemeral/
+linux/.plugin_symlinks/
+
+# Firebase
+google-services.json
+GoogleService-Info.plist
+
+# Test
+test/.test_coverage.dart
