@@ -307,27 +307,6 @@ class AIRoastingScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          width: double.infinity,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(9999),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Maaf, khilaf...',
-                              style: AppTypography.titleMedium.copyWith(
-                                color: const Color(0xFFCBD5E1),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'core/theme/app_theme.dart';
+import 'core/services/notification_service.dart';
 import 'screens/main_shell.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -11,6 +12,7 @@ void main() {
       statusBarIconBrightness: Brightness.dark,
     ),
   );
+  await NotificationService.init();
   runApp(const TamparApp());
 }
 

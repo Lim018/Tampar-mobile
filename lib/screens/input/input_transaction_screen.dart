@@ -47,6 +47,7 @@ class _InputTransactionScreenState extends State<InputTransactionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Column(
           children: [

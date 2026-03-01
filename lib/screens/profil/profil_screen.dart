@@ -2,14 +2,33 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/utils/currency_formatter.dart';
+import '../../core/services/clipboard_service.dart';
 import '../../data/dummy_data.dart';
 import '../ai_roasting/ai_roasting_screen.dart';
 import '../clipboard_guardian/clipboard_guardian_dialog.dart';
 
-class ProfilScreen extends StatelessWidget {
+class ProfilScreen extends StatefulWidget {
   const ProfilScreen({super.key});
 
-  void _openAIRoasting(BuildContext context) {
+  @override
+  State<ProfilScreen> createState() => _ProfilScreenState();
+}
+
+class _ProfilScreenState extends State<ProfilScreen> {
+  String? _savedPhone;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPhone();
+  }
+
+  Future<void> _loadPhone() async {
+    final phone = await ClipboardService.getPhoneNumber();
+    if (mounted) setState(() => _savedPhone = phone);
+  }
+
+  void _openAIRoasting() {
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (_, __, ___) => const AIRoastingScreen(),
@@ -21,11 +40,173 @@ class ProfilScreen extends StatelessWidget {
     );
   }
 
-  void _openClipboardGuardian(BuildContext context) {
+  void _openClipboardGuardian() {
     showDialog(
       context: context,
       barrierColor: Colors.black54,
-      builder: (_) => const ClipboardGuardianDialog(),
+      builder: (_) => const ClipboardGuardianDialog(vaNumber: '880123456789'),
+    );
+  }
+
+  void _showPhoneInputDialog() {
+    final controller = TextEditingController(text: _savedPhone ?? '');
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                ),
+                child: const Icon(
+                  Icons.phone_android,
+                  color: AppColors.primary,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text('Ganti Nomor Telepon', style: AppTypography.titleLarge),
+              const SizedBox(height: 8),
+              Text(
+                'Nomor ini akan digunakan untuk mendeteksi transaksi VA dari clipboard.',
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.textSub,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: controller,
+                keyboardType: TextInputType.phone,
+                style: AppTypography.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.2,
+                ),
+                decoration: InputDecoration(
+                  hintText: '08xxxxxxxxxx',
+                  hintStyle: AppTypography.bodyMedium.copyWith(
+                    color: const Color(0xFF9CA3AF),
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.phone,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 2,
+                    ),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(ctx),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: const Color(0xFFE2E8F0),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Batal',
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: AppColors.textSub,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () async {
+                        final phone = controller.text.trim();
+                        if (phone.isNotEmpty) {
+                          await ClipboardService.savePhoneNumber(phone);
+                          if (mounted) setState(() => _savedPhone = phone);
+                        }
+                        if (ctx.mounted) Navigator.pop(ctx);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Nomor disimpan: ${ClipboardService.formatPhone(phone)}',
+                              ),
+                              backgroundColor: AppColors.primary,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Simpan',
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -51,7 +232,7 @@ class ProfilScreen extends StatelessWidget {
             ),
             child: Column(
               children: [
-                // Top bar
+                // Top bar with settings popup
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -62,17 +243,50 @@ class ProfilScreen extends StatelessWidget {
                         color: Colors.white,
                       ),
                     ),
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.1),
+                    PopupMenuButton<String>(
+                      onSelected: (value) {
+                        if (value == 'phone') _showPhoneInputDialog();
+                      },
+                      offset: const Offset(0, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(
-                        Icons.settings,
-                        color: Colors.white,
-                        size: 22,
+                      color: Colors.white,
+                      elevation: 8,
+                      itemBuilder: (_) => [
+                        PopupMenuItem<String>(
+                          value: 'phone',
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.phone_android,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                'Ganti Nomor Telepon',
+                                style: AppTypography.bodySmall.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textHeading,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                        child: const Icon(
+                          Icons.settings,
+                          color: Colors.white,
+                          size: 22,
+                        ),
                       ),
                     ),
                   ],
@@ -203,6 +417,19 @@ class ProfilScreen extends StatelessWidget {
                   label: 'Kebutuhan Tetap',
                   value: CurrencyFormatter.formatRupiah(user.fixedExpense),
                   valueColor: AppColors.textSub,
+                  showBorder: true,
+                ),
+                _FinancialRow(
+                  icon: Icons.phone_android,
+                  iconColor: AppColors.primary,
+                  iconBgColor: const Color(0xFFF3F0FF),
+                  label: 'Nomor Terdaftar',
+                  value: _savedPhone != null
+                      ? ClipboardService.formatPhone(_savedPhone!)
+                      : 'Belum diatur',
+                  valueColor: _savedPhone != null
+                      ? AppColors.textHeading
+                      : AppColors.textMuted,
                   showBorder: false,
                 ),
               ],
@@ -302,7 +529,7 @@ class ProfilScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     // AI Roasting button
                     GestureDetector(
-                      onTap: () => _openAIRoasting(context),
+                      onTap: _openAIRoasting,
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
@@ -353,7 +580,7 @@ class ProfilScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     // Clipboard Guardian button
                     GestureDetector(
-                      onTap: () => _openClipboardGuardian(context),
+                      onTap: _openClipboardGuardian,
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(14),
@@ -432,11 +659,8 @@ class _Badge extends StatelessWidget {
 
 class _FinancialRow extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
-  final Color iconBgColor;
-  final String label;
-  final String value;
-  final Color valueColor;
+  final Color iconColor, iconBgColor, valueColor;
+  final String label, value;
   final bool showBorder;
 
   const _FinancialRow({
@@ -483,11 +707,14 @@ class _FinancialRow extends StatelessWidget {
               ),
             ],
           ),
-          Text(
-            value,
-            style: AppTypography.bodyMedium.copyWith(
-              color: valueColor,
-              fontWeight: FontWeight.w700,
+          Flexible(
+            child: Text(
+              value,
+              style: AppTypography.bodyMedium.copyWith(
+                color: valueColor,
+                fontWeight: FontWeight.w700,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -500,7 +727,6 @@ class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool showBorder;
-
   const _SettingsTile({
     required this.icon,
     required this.label,

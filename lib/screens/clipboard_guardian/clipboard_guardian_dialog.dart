@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../core/services/clipboard_service.dart';
 
 class ClipboardGuardianDialog extends StatelessWidget {
-  const ClipboardGuardianDialog({super.key});
+  final String vaNumber;
+  const ClipboardGuardianDialog({super.key, required this.vaNumber});
 
   @override
   Widget build(BuildContext context) {
+    final displayVA = ClipboardService.formatPhone(vaNumber);
+    final lastFour = vaNumber.length >= 4
+        ? vaNumber.substring(vaNumber.length - 4)
+        : vaNumber;
+
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 24),
@@ -69,7 +76,7 @@ class ClipboardGuardianDialog extends StatelessWidget {
                     style: AppTypography.headlineMedium.copyWith(fontSize: 18),
                   ),
                   const SizedBox(height: 12),
-                  // VA number
+                  // VA number — dynamic
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -88,12 +95,15 @@ class ClipboardGuardianDialog extends StatelessWidget {
                             color: AppColors.textSub,
                           ),
                         ),
-                        Text(
-                          '880123456789',
-                          style: AppTypography.bodyMedium.copyWith(
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.2,
-                            fontFamily: 'monospace',
+                        Flexible(
+                          child: Text(
+                            displayVA,
+                            style: AppTypography.bodyMedium.copyWith(
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.2,
+                              fontFamily: 'monospace',
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -129,7 +139,7 @@ class ClipboardGuardianDialog extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Warning
+                  // Warning with dynamic VA suffix
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
@@ -166,6 +176,10 @@ class ClipboardGuardianDialog extends StatelessWidget {
                                     height: 1.4,
                                   ),
                                   children: [
+                                    TextSpan(
+                                      text:
+                                          'Woy, ngapain bawa VA $lastFour ke sini?! ',
+                                    ),
                                     const TextSpan(
                                       text: 'Transaksi ini akan memakan ',
                                     ),
